@@ -1,0 +1,677 @@
+#app/companies/page.tsx
+
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Edit, Trash2, LinkIcon } from 'lucide-react'
+
+export default function CompaniesPage() {
+  return (
+    <div>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">Companies</h1>
+        <Button>Add Company</Button>
+      </div>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {companies.map((company) => (
+          <Card key={company.id}>
+            <CardHeader>
+              <CardTitle className="flex justify-between items-start">
+                {company.name}
+                <div className="space-x-2">
+                  <Button variant="ghost" size="icon"><Edit className="h-4 w-4" /></Button>
+                  <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4" /></Button>
+                </div>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center mb-2">
+                <LinkIcon className="mr-2 h-4 w-4" />
+                <a href={company.careerPageUrl} className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
+                  Career Page
+                </a>
+              </div>
+              <Badge variant={company.lastScanTime ? 'success' : 'warning'} className="mb-2">
+                {company.lastScanTime ? `Last scan: ${company.lastScanTime}` : 'Never scanned'}
+              </Badge>
+              <div className="text-sm text-muted-foreground">
+                Selectors configured: {company.selectorsConfigured}/6
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+const companies = [
+  { id: 1, name: 'Tech Innovators', careerPageUrl: 'https://techinnovators.com/careers', lastScanTime: '2 hours ago', selectorsConfigured: 5 },
+  { id: 2, name: 'Global Systems', careerPageUrl: 'https://globalsystems.com/jobs', lastScanTime: null, selectorsConfigured: 3 },
+  // Add more companies...
+]
+
+#app/jobs/page.tsx
+
+"use client"
+
+import * as React from "react"
+import { Button } from "@/components/ui/button"
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Edit, Trash2, MapPin } from 'lucide-react'
+
+export default function JobsPage() {
+  const jobProfiles = [
+    {
+      id: 1,
+      jobTitle: "Software Engineer",
+      company: "Tech Co",
+      location: "San Francisco, CA",
+      remote: true,
+    },
+    {
+      id: 2,
+      jobTitle: "Product Manager",
+      company: "Startup Inc",
+      location: "New York, NY",
+      remote: false,
+    },
+  ]
+
+  const jobMatches = [
+    {
+      id: 1,
+      title: "Senior React Developer",
+      company: "Web Solutions Ltd",
+      location: "Remote",
+      description:
+        "We are seeking an experienced React developer to join our team...",
+      postedDate: "2 days ago",
+    },
+    {
+      id: 2,
+      title: "UX Designer",
+      company: "Creative Agency",
+      location: "Los Angeles, CA",
+      description:
+        "Join our creative team to design intuitive user experiences...",
+      postedDate: "1 week ago",
+    },
+  ]
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="space-y-8">
+        <section>
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold">Job Search Profiles</h2>
+            <Button 
+              className="bg-primary hover:bg-primary/90 text-white"
+            >
+              Create Search Profile
+            </Button>
+          </div>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {jobProfiles.map((profile) => (
+              <Card key={profile.id}>
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex justify-between items-start gap-4">
+                    <Badge
+                      variant="secondary"
+                      className="px-2 py-1 text-sm font-medium bg-primary/10 text-primary hover:bg-primary/20"
+                    >
+                      {profile.jobTitle}
+                    </Badge>
+                    <div className="flex space-x-2">
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
+                        <Edit className="h-4 w-4" />
+                        <span className="sr-only">Edit</span>
+                      </Button>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive">
+                        <Trash2 className="h-4 w-4" />
+                        <span className="sr-only">Delete</span>
+                      </Button>
+                    </div>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Badge 
+                    variant="outline" 
+                    className="mb-2 bg-secondary/50 hover:bg-secondary"
+                  >
+                    {profile.company}
+                  </Badge>
+                  <div className="flex items-center text-sm text-muted-foreground">
+                    <MapPin className="mr-1 h-4 w-4" />
+                    {profile.location}
+                  </div>
+                  {profile.remote && (
+                    <Badge 
+                      variant="secondary" 
+                      className="mt-2 bg-primary/10 text-primary hover:bg-primary/20"
+                    >
+                      Remote
+                    </Badge>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </section>
+
+        <section>
+          <h2 className="text-2xl font-bold mb-6">Job Matches</h2>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {jobMatches.map((job) => (
+              <Card key={job.id} className="flex flex-col">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-xl mb-1">{job.title}</CardTitle>
+                  <div className="text-sm text-muted-foreground">
+                    {job.company}
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center mb-2 text-sm text-muted-foreground">
+                    <MapPin className="mr-1 h-4 w-4" />
+                    <Badge 
+                      variant="secondary" 
+                      className="bg-primary/10 text-primary hover:bg-primary/20"
+                    >
+                      {job.location}
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground line-clamp-3">
+                    {job.description}
+                  </p>
+                  <div className="mt-2 text-sm text-muted-foreground">
+                    Posted {job.postedDate}
+                  </div>
+                </CardContent>
+                <CardFooter className="mt-auto pt-6">
+                  <Button className="w-full bg-primary hover:bg-primary/90 text-white">
+                    Apply
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        </section>
+      </div>
+    </div>
+  )
+}
+
+#app/login/layout.tsx
+
+export default function LoginLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {children}
+    </div>
+  )
+}
+
+#app/login/page.tsx
+
+'use client'
+
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { useToast } from "@/components/ui/use-toast"
+import Link from 'next/link'
+
+export default function LoginPage() {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const router = useRouter()
+  const { toast } = useToast()
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsLoading(true)
+
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000))
+
+    // For demo purposes, we'll just check if the email and password are not empty
+    if (email && password) {
+      toast({
+        title: "Login Successful",
+        description: "Welcome back to Job Search Agent!",
+      })
+      router.push('/jobs')
+    } else {
+      toast({
+        title: "Login Failed",
+        description: "Please check your email and password.",
+        variant: "destructive",
+      })
+    }
+
+    setIsLoading(false)
+  }
+
+  return (
+    <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] bg-gray-50">
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle className="text-2xl text-center">Welcome Back</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? "Signing In..." : "Sign In"}
+            </Button>
+          </form>
+        </CardContent>
+        <CardFooter className="flex justify-between">
+          <Link href="/forgot-password" className="text-sm text-primary hover:underline">
+            Forgot password?
+          </Link>
+          <Link href="/register" className="text-sm text-primary hover:underline">
+            Create an account
+          </Link>
+        </CardFooter>
+      </Card>
+    </div>
+  )
+}
+
+#app/profile/page.tsx
+'use client'
+
+import { useState } from 'react'
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+
+export default function ProfilePage() {
+  const [notificationChannels, setNotificationChannels] = useState({
+    email: true,
+    push: false,
+    sms: false,
+    slack: false,
+  })
+
+  return (
+    <div className="max-w-2xl mx-auto">
+      <h1 className="text-3xl font-bold mb-6">Profile Settings</h1>
+      
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>User Information</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input id="email" type="email" placeholder="your@email.com" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="name">Name</Label>
+            <Input id="name" placeholder="Your Name" />
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Notification Preferences</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="space-y-4">
+            <h3 className="font-semibold">Notification Channels</h3>
+            {Object.entries(notificationChannels).map(([channel, enabled]) => (
+              <div key={channel} className="flex items-center justify-between">
+                <Label htmlFor={`${channel}-toggle`} className="capitalize">{channel}</Label>
+                <Switch
+                  id={`${channel}-toggle`}
+                  checked={enabled}
+                  onCheckedChange={(checked) => setNotificationChannels(prev => ({ ...prev, [channel]: checked }))}
+                />
+              </div>
+            ))}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="quiet-hours">Quiet Hours</Label>
+            <div className="flex space-x-2">
+              <Input id="quiet-hours-start" type="time" className="w-full" />
+              <span className="self-center">to</span>
+              <Input id="quiet-hours-end" type="time" className="w-full" />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="timezone">Timezone</Label>
+            <Select>
+              <SelectTrigger id="timezone">
+                <SelectValue placeholder="Select timezone" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="utc">UTC</SelectItem>
+                <SelectItem value="est">Eastern Time</SelectItem>
+                <SelectItem value="pst">Pacific Time</SelectItem>
+                {/* Add more timezone options */}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="frequency">Notification Frequency</Label>
+            <Select>
+              <SelectTrigger id="frequency">
+                <SelectValue placeholder="Select frequency" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="immediate">Immediate</SelectItem>
+                <SelectItem value="hourly">Hourly Digest</SelectItem>
+                <SelectItem value="daily">Daily Digest</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="mt-6 text-right">
+        <Button>Save Changes</Button>
+      </div>
+    </div>
+  )
+}
+
+#app/globals.css
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+ 
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 242 71% 47%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 242 71% 47%;
+    --radius: 0.5rem;
+  }
+}
+ 
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-gray-50 text-foreground;
+  }
+}
+
+#app/layout.tsx
+
+import './globals.css'
+import { Inter } from 'next/font/google'
+import { Toaster } from "@/components/ui/toaster"
+import Navbar from '@/components/Navbar'
+
+const inter = Inter({ subsets: ['latin'] })
+
+export const metadata = {
+  title: 'Job Search Agent',
+  description: 'Your personal job search assistant',
+}
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <html lang="en">
+      <body className={inter.className}>
+        <Navbar />
+        <main className="min-h-[calc(100vh-4rem)]">
+          {children}
+        </main>
+        <Toaster />
+      </body>
+    </html>
+  )
+}
+
+#app/page.tsx
+
+import Link from 'next/link'
+import { Button } from "@/components/ui/button"
+
+export default function HomePage() {
+  return (
+    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] text-center">
+      <h1 className="text-4xl font-bold mb-6">Welcome to Job Search Agent</h1>
+      <p className="text-xl mb-8 max-w-md">Your personal assistant for finding the perfect job opportunity.</p>
+      <div className="space-x-4">
+        <Button asChild>
+          <Link href="/jobs">View Jobs</Link>
+        </Button>
+        <Button asChild variant="outline">
+          <Link href="/companies">Manage Companies</Link>
+        </Button>
+      </div>
+    </div>
+  )
+}
+
+#components/ui/card.tsx
+
+import * as React from "react"
+import { cn } from "@/lib/utils"
+
+const Card = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn(
+      "rounded-lg border bg-white text-card-foreground shadow transition-shadow hover:shadow-md",
+      className
+    )}
+    {...props}
+  />
+))
+Card.displayName = "Card"
+
+const CardHeader = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("flex flex-col space-y-1.5 p-6", className)}
+    {...props}
+  />
+))
+CardHeader.displayName = "CardHeader"
+
+const CardTitle = React.forwardRef<
+  HTMLParagraphElement,
+  React.HTMLAttributes<HTMLHeadingElement>
+>(({ className, ...props }, ref) => (
+  <h3
+    ref={ref}
+    className={cn(
+      "text-lg font-semibold leading-none tracking-tight",
+      className
+    )}
+    {...props}
+  />
+))
+CardTitle.displayName = "CardTitle"
+
+const CardDescription = React.forwardRef<
+  HTMLParagraphElement,
+  React.HTMLAttributes<HTMLParagraphElement>
+>(({ className, ...props }, ref) => (
+  <p
+    ref={ref}
+    className={cn("text-sm text-muted-foreground", className)}
+    {...props}
+  />
+))
+CardDescription.displayName = "CardDescription"
+
+const CardContent = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div ref={ref} className={cn("p-6 pt-0", className)} {...props} />
+))
+CardContent.displayName = "CardContent"
+
+const CardFooter = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("flex items-center p-6 pt-0", className)}
+    {...props}
+  />
+))
+CardFooter.displayName = "CardFooter"
+
+export {
+  Card,
+  CardHeader,
+  CardFooter,
+  CardTitle,
+  CardDescription,
+  CardContent,
+}
+
+#components/navbar.tsx
+
+'use client'
+
+import Link from 'next/link'
+import { usePathname, useRouter } from 'next/navigation'
+import { Button } from "@/components/ui/button"
+import { LogOut, User } from 'lucide-react'
+import { useToast } from "@/components/ui/use-toast"
+
+const Navbar = () => {
+  const pathname = usePathname()
+  const router = useRouter()
+  const { toast } = useToast()
+  const isLoggedIn = pathname !== '/login' // Simple check, replace with actual auth logic
+
+  const handleLogout = () => {
+    // Implement actual logout logic here
+    toast({
+      title: "Logged Out",
+      description: "You have been successfully logged out.",
+    })
+    router.push('/login')
+  }
+
+  return (
+    <nav className="bg-primary text-primary-foreground shadow-md">
+      <div className="container mx-auto px-4">
+        <div className="flex items-center justify-between h-16">
+          <Link href="/" className="text-xl font-bold">Job Search Agent</Link>
+          {isLoggedIn && (
+            <div className="hidden md:flex space-x-4">
+              <NavLink href="/jobs" active={pathname === '/jobs'}>Jobs</NavLink>
+              <NavLink href="/companies" active={pathname === '/companies'}>Companies</NavLink>
+              <NavLink href="/profile" active={pathname === '/profile'}>Profile</NavLink>
+            </div>
+          )}
+          <div className="flex items-center space-x-4">
+            {isLoggedIn ? (
+              <>
+                <Button variant="ghost" size="sm" asChild>
+                  <Link href="/profile">
+                    <User className="mr-2 h-4 w-4" />
+                    Profile
+                  </Link>
+                </Button>
+                <Button variant="ghost" size="sm" onClick={handleLogout}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <Button variant="ghost" size="sm" asChild>
+                <Link href="/login">Login</Link>
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+    </nav>
+  )
+}
+
+const NavLink = ({ href, children, active }: { href: string; children: React.ReactNode; active: boolean }) => (
+  <Link href={href} className={`px-3 py-2 rounded-md text-sm font-medium ${active ? 'bg-primary-foreground text-primary' : 'hover:bg-primary-foreground/10'}`}>
+    {children}
+  </Link>
+)
+
+export default Navbar
+
+
+

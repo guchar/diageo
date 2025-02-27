@@ -1,0 +1,65 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id                String       @id @default(cuid())
+  email             String       @unique
+  hashedPassword    String
+  name              String
+  notificationPrefs String       // JSON string for SQLite compatibility
+  jobProfiles       JobProfile[]
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+}
+
+model Company {
+  id              String       @id @default(cuid())
+  name            String
+  careerPageUrl   String
+  jobBoardPlatform String?    // e.g., "greenhouse", "lever", "workday", "custom"
+  selectorsConfig String       // JSON string for SQLite compatibility
+  lastScanTime    DateTime?
+  jobProfiles     JobProfile[]
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+}
+
+model JobProfile {
+  id          String     @id @default(cuid())
+  userId      String
+  companyId   String
+  jobTitle    String
+  location    String?
+  remote      Boolean    @default(false)
+  user        User       @relation(fields: [userId], references: [id])
+  company     Company    @relation(fields: [companyId], references: [id])
+  jobMatches  JobMatch[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([userId])
+  @@index([companyId])
+}
+
+model JobMatch {
+  id           String     @id @default(cuid())
+  jobProfileId String
+  jobProfile   JobProfile @relation(fields: [jobProfileId], references: [id])
+  title        String
+  description  String
+  location     String
+  type         String
+  applyLink    String
+  postedDate   DateTime
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@index([jobProfileId])
+  @@index([applyLink])
+} 
