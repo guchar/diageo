@@ -6,12 +6,20 @@ class OptimizationRequest(BaseModel):
     line_number: int
     drinks: List[str]
 
+class TransitionInfo(BaseModel):
+    """Model for transition between drinks"""
+    from_drink: str
+    to_drink: str
+    cleaning_type: str
+    water_usage: float
+
 class OptimizationResponse(BaseModel):
     """Response model for optimization results"""
     optimal_path: List[str]
     total_water_usage: float
     water_saved: float
     original_water_usage: float
+    transitions: List[TransitionInfo]
 
 class ProductionLinesResponse(BaseModel):
     """Response model for production lines endpoint"""

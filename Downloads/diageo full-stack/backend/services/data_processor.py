@@ -87,7 +87,7 @@ class DataProcessor:
         
         # Filter out NaN and empty values, return clean drink names
         drinks = df['Drinks'].dropna().tolist()
-        drinks = [drink for drink in drinks if drink and str(drink).strip()]
+        drinks = [str(drink).strip() for drink in drinks if drink and str(drink).strip()]
         
         return sorted(list(set(drinks)))  # Remove duplicates and sort
     

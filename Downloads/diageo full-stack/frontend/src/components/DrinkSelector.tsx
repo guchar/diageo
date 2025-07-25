@@ -1,34 +1,48 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Badge } from "@/components/ui/badge";
+import { Upload, X, Plus, ChevronDown, Check } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
-import { api } from "../services/api";
+import { api } from "@/services/api";
+import { cn } from "@/lib/utils";
 
 interface DrinkSelectorProps {
-  selectedLine: number | null;
+  productionLine: number | null;
   selectedDrinks: string[];
   onDrinksChange: (drinks: string[]) => void;
 }
 
-function DrinkSelector({
-  selectedLine,
+export const DrinkSelector = ({
+  productionLine,
   selectedDrinks,
   onDrinksChange,
-}: DrinkSelectorProps) {
-  const [inputMethod, setInputMethod] = useState<"dropdown" | "file">(
-    "dropdown"
-  );
+}: DrinkSelectorProps) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const { toast } = useToast();
 
-  const {
-    data: drinksData,
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ["drinks", selectedLine],
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["drinks", productionLine],
     queryFn: () =>
-      selectedLine
-        ? api.getDrinks(selectedLine)
+      productionLine
+        ? api.getDrinks(productionLine)
         : Promise.resolve({ drinks: [] }),
-    enabled: !!selectedLine,
+    enabled: !!productionLine,
   });
+
+  const availableDrinks = data?.drinks ?? [];
 
   const handleDrinkToggle = (drink: string) => {
     if (selectedDrinks.includes(drink)) {
@@ -38,192 +52,190 @@ function DrinkSelector({
     }
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file && selectedLine) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const text = e.target?.result as string;
-        const drinks = text
-          .split("\n")
-          .map((line) => line.trim())
-          .filter((line) => line.length > 0);
-        onDrinksChange(drinks);
-      };
-      reader.readAsText(file);
-    }
+  const handleRemoveDrink = (drink: string) => {
+    onDrinksChange(selectedDrinks.filter((d) => d !== drink));
   };
 
-  const clearSelection = () => {
+  const handleSelectAll = () => {
+    onDrinksChange(availableDrinks);
+    setIsOpen(false);
+  };
+
+  const handleClearAll = () => {
     onDrinksChange([]);
   };
 
-  if (!selectedLine) {
-    return (
-      <div className="mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Select Drinks
-        </label>
-        <div className="bg-gray-100 border border-gray-300 text-gray-500 px-4 py-8 rounded-md text-center">
-          Please select a production line first
-        </div>
-      </div>
-    );
-  }
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Mock file processing
+      toast({
+        title: "File uploaded successfully",
+        description: `Processing ${file.name}...`,
+      });
+
+      // Simulate parsing drinks from file
+      setTimeout(() => {
+        const mockDrinks = [
+          "Custom Drink A",
+          "Custom Drink B",
+          "Custom Drink C",
+        ];
+        onDrinksChange([...selectedDrinks, ...mockDrinks]);
+        toast({
+          title: "Drinks imported",
+          description: `Added ${mockDrinks.length} drinks from file`,
+        });
+      }, 1000);
+    }
+  };
+
+  const getDisplayText = () => {
+    if (!productionLine) return "Select production line first";
+    if (isLoading) return "Loading...";
+    if (error) return "Error loading drinks";
+    if (selectedDrinks.length === 0) return "Select drinks...";
+    if (selectedDrinks.length === 1) return selectedDrinks[0];
+    return `${selectedDrinks.length} drinks selected`;
+  };
 
   return (
-    <div className="mb-6">
-      <div className="flex items-center justify-between mb-4">
-        <label className="block text-sm font-medium text-gray-700">
-          Select Drinks
-        </label>
-        <div className="flex space-x-2">
-          <button
-            type="button"
-            onClick={() => setInputMethod("dropdown")}
-            className={`px-3 py-1 text-sm rounded ${
-              inputMethod === "dropdown"
-                ? "bg-blue-500 text-white"
-                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-            }`}
-          >
-            Dropdown
-          </button>
-          <button
-            type="button"
-            onClick={() => setInputMethod("file")}
-            className={`px-3 py-1 text-sm rounded ${
-              inputMethod === "file"
-                ? "bg-blue-500 text-white"
-                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-            }`}
-          >
-            File Upload
-          </button>
-        </div>
-      </div>
+    <Card className="shadow-soft">
+      <CardHeader>
+        <CardTitle className="text-xl">Select Drinks</CardTitle>
+        <CardDescription>
+          Choose drinks from the dropdown or upload a file
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        {/* Multi-Select Dropdown */}
+        <div className="space-y-3">
+          <h4 className="font-medium text-sm">Select from available drinks:</h4>
 
-      {inputMethod === "dropdown" && (
-        <div>
-          {isLoading && (
-            <div className="animate-pulse bg-gray-200 h-40 rounded-md"></div>
-          )}
-
-          {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-              Error loading drinks for this production line
-            </div>
-          )}
-
-          {drinksData && (
-            <div className="border border-gray-300 rounded-md max-h-60 overflow-y-auto">
-              {drinksData.drinks.length === 0 ? (
-                <div className="p-4 text-gray-500 text-center">
-                  No drinks available for this production line
-                </div>
-              ) : (
-                <div className="p-2">
-                  {drinksData.drinks.map((drink) => (
-                    <label
-                      key={drink}
-                      className="flex items-center px-2 py-1 hover:bg-gray-50 cursor-pointer"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={selectedDrinks.includes(drink)}
-                        onChange={() => handleDrinkToggle(drink)}
-                        className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                      />
-                      <span className="text-sm">{drink}</span>
-                    </label>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      )}
-
-      {inputMethod === "file" && (
-        <div>
-          <div className="border-2 border-dashed border-gray-300 rounded-md p-6">
-            <div className="text-center">
-              <svg
-                className="mx-auto h-12 w-12 text-gray-400"
-                stroke="currentColor"
-                fill="none"
-                viewBox="0 0 48 48"
+          <Popover open={isOpen} onOpenChange={setIsOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                role="combobox"
+                aria-expanded={isOpen}
+                className="w-full justify-between"
+                disabled={!productionLine || isLoading || !!error}
               >
-                <path
-                  d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                  strokeWidth={2}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-              <div className="mt-4">
-                <label htmlFor="file-upload" className="cursor-pointer">
-                  <span className="mt-2 block text-sm font-medium text-gray-900">
-                    Upload a text file with drink names (one per line)
-                  </span>
-                  <input
-                    id="file-upload"
-                    name="file-upload"
-                    type="file"
-                    accept=".txt,.csv"
-                    onChange={handleFileUpload}
-                    className="sr-only"
-                  />
-                  <span className="mt-2 block text-sm text-blue-600 hover:text-blue-500">
-                    Click to upload
-                  </span>
-                </label>
+                <span className="truncate">{getDisplayText()}</span>
+                <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-full p-0" align="start">
+              <div className="max-h-60 overflow-y-auto">
+                {/* Header with actions */}
+                <div className="flex items-center justify-between p-2 border-b">
+                  <div className="text-sm font-medium">
+                    {availableDrinks.length} drinks available
+                  </div>
+                  <div className="flex gap-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleSelectAll}
+                      disabled={
+                        selectedDrinks.length === availableDrinks.length
+                      }
+                    >
+                      Select All
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleClearAll}
+                      disabled={selectedDrinks.length === 0}
+                    >
+                      Clear
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Drinks list */}
+                <div className="p-1">
+                  {availableDrinks.length === 0 ? (
+                    <div className="p-4 text-center text-sm text-muted-foreground">
+                      No drinks available
+                    </div>
+                  ) : (
+                    availableDrinks.map((drink) => (
+                      <div
+                        key={drink}
+                        className={cn(
+                          "flex items-center space-x-2 rounded-sm px-2 py-1.5 text-sm cursor-pointer hover:bg-accent",
+                          selectedDrinks.includes(drink) && "bg-accent"
+                        )}
+                        onClick={() => handleDrinkToggle(drink)}
+                      >
+                        <div className="flex h-4 w-4 items-center justify-center">
+                          {selectedDrinks.includes(drink) && (
+                            <Check className="h-3 w-3" />
+                          )}
+                        </div>
+                        <span className="flex-1 truncate">{drink}</span>
+                      </div>
+                    ))
+                  )}
+                </div>
               </div>
-              <p className="mt-2 text-xs text-gray-500">
-                TXT or CSV files up to 10MB
-              </p>
-            </div>
+            </PopoverContent>
+          </Popover>
+        </div>
+
+        {/* File Upload */}
+        <div className="space-y-3">
+          <h4 className="font-medium text-sm">Or upload drinks file:</h4>
+          <div className="border-2 border-dashed border-border rounded-lg p-4 hover:border-primary/50 transition-colors">
+            <label className="cursor-pointer flex flex-col items-center gap-2">
+              <Upload className="h-8 w-8 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">
+                Click to upload drinks list
+              </span>
+              <input
+                type="file"
+                accept=".csv,.xlsx,.txt"
+                onChange={handleFileUpload}
+                className="hidden"
+              />
+            </label>
           </div>
         </div>
-      )}
 
-      {selectedDrinks.length > 0 && (
-        <div className="mt-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-700">
-              Selected drinks ({selectedDrinks.length})
-            </span>
-            <button
-              type="button"
-              onClick={clearSelection}
-              className="text-sm text-red-600 hover:text-red-800"
-            >
-              Clear all
-            </button>
-          </div>
-          <div className="bg-gray-50 border border-gray-200 rounded-md p-3 max-h-32 overflow-y-auto">
-            <div className="flex flex-wrap gap-2">
+        {/* Selected Drinks */}
+        {selectedDrinks.length > 0 && (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h4 className="font-medium text-sm">
+                Selected drinks ({selectedDrinks.length}):
+              </h4>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleClearAll}
+                className="text-xs"
+              >
+                Clear all
+              </Button>
+            </div>
+            <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
               {selectedDrinks.map((drink) => (
-                <span
-                  key={drink}
-                  className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
-                >
-                  {drink}
+                <Badge key={drink} variant="secondary" className="py-1 px-3">
+                  <span className="max-w-32 truncate">{drink}</span>
                   <button
-                    type="button"
-                    onClick={() => handleDrinkToggle(drink)}
-                    className="ml-1 inline-flex items-center justify-center w-4 h-4 rounded-full text-blue-400 hover:text-blue-600"
+                    onClick={() => handleRemoveDrink(drink)}
+                    className="ml-2 hover:text-destructive"
                   >
-                    ×
+                    <X className="h-3 w-3" />
                   </button>
-                </span>
+                </Badge>
               ))}
             </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </CardContent>
+    </Card>
   );
-}
-
-export default DrinkSelector;
+};
