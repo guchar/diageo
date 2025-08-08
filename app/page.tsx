@@ -72,6 +72,42 @@ function SchedulerApp() {
   const [optimizing, setOptimizing] = useState(false);
   const [result, setResult] = useState<OptimizeResponse | null>(null);
 
+  function parseCsvTokens(text: string): string[] {
+    const tokens: string[] = [];
+    let current = "";
+    let inQuotes = false;
+    for (let i = 0; i < text.length; i++) {
+      const ch = text[i];
+      if (ch === '"') {
+        if (inQuotes && text[i + 1] === '"') {
+          current += '"';
+          i++;
+        } else {
+          inQuotes = !inQuotes;
+        }
+        continue;
+      }
+      if (!inQuotes && (ch === "," || ch === "\n" || ch === "\r")) {
+        const cleaned = current.replace(/\r/g, "").replace(/\n/g, " ").trim();
+        if (cleaned) tokens.push(cleaned);
+        current = "";
+      } else {
+        current += ch;
+      }
+    }
+    const cleaned = current.replace(/\r/g, "").replace(/\n/g, " ").trim();
+    if (cleaned) tokens.push(cleaned);
+    return Array.from(new Set(tokens));
+  }
+
+  function normalizeName(value: string): string {
+    return value
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, " ")
+      .trim()
+      .replace(/\s+/g, " ");
+  }
+
   async function runOptimization() {
     if (!selectedLine || selectedDrinks.length < 2) return;
     setOptimizing(true);
@@ -96,12 +132,20 @@ function SchedulerApp() {
     const reader = new FileReader();
     reader.onload = () => {
       const text = String(reader.result ?? "");
-      const parsed = text
-        .replace(/\r\n?/g, "\n")
-        .split(/\n|,/)
-        .map((s) => s.trim())
-        .filter(Boolean);
-      const dedup = Array.from(new Set(parsed));
+      const tokens = parseCsvTokens(text);
+      // If we know the drinks for the selected line, filter/map to canonical names
+      let finalList = tokens;
+      const available = drinksData?.drinks ?? [];
+      if (available.length > 0) {
+        const normalizedToOriginal = new Map<string, string>();
+        for (const d of available) {
+          normalizedToOriginal.set(normalizeName(d), d);
+        }
+        finalList = tokens
+          .map((t) => normalizedToOriginal.get(normalizeName(t)) ?? null)
+          .filter((v): v is string => Boolean(v));
+      }
+      const dedup = Array.from(new Set(finalList));
       setDrinksParam(dedup.join(","));
     };
     reader.readAsText(file);
@@ -127,6 +171,10 @@ function SchedulerApp() {
                 next.delete("drinks");
               });
               setResult(null);
+              setUploadedFileName(null);
+              if (fileInputRef.current) {
+                fileInputRef.current.value = "";
+              }
             }}
             className="rounded border px-3 py-2 text-sm bg-white"
           >
@@ -163,6 +211,11 @@ function SchedulerApp() {
                   next.delete("drinks");
                 });
                 setResult(null);
+                // Clear any uploaded file indicator when switching lines
+                setUploadedFileName(null);
+                if (fileInputRef.current) {
+                  fileInputRef.current.value = "";
+                }
               }}
             >
               <option value="">Select line</option>
