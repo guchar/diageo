@@ -2,6 +2,7 @@ import * as XLSX from "xlsx";
 // Note: excelLoader used elsewhere; no direct usage here
 import path from "node:path";
 import fs from "node:fs";
+import { CLEANING_PROCESS_MAPPING } from "./excelLoader";
 
 type Matrix = number[][];
 
@@ -23,8 +24,16 @@ function readNormalizedRows(line: number): Record<string, unknown>[] {
   return json.map((row) => {
     const out: Record<string, unknown> = {};
     for (const [k, v] of Object.entries(row)) {
-      out[typeof k === "string" ? k.trim() : String(k)] =
-        typeof v === "string" ? v.trim() : v;
+      const key = typeof k === "string" ? k.trim() : String(k);
+      let value: unknown = typeof v === "string" ? v.trim() : v;
+      if (typeof value === "string") {
+        const mapped =
+          CLEANING_PROCESS_MAPPING[
+            value as keyof typeof CLEANING_PROCESS_MAPPING
+          ];
+        if (mapped !== undefined) value = mapped;
+      }
+      out[key] = value;
     }
     return out;
   });
@@ -48,8 +57,22 @@ export function buildAdjacencyMatrix(line: number, drinks: string[]): Matrix {
       }
       const from = drinkToRow[drinks[i]] ?? {};
       const raw = (from as Record<string, unknown>)[drinks[j]];
-      const val = typeof raw === "number" ? raw : Number(raw);
-      matrix[i][j] = Number.isFinite(val) ? (val as number) : 8000;
+      let val: number | undefined;
+      if (typeof raw === "number") val = raw;
+      else if (typeof raw === "string") {
+        const trimmed = raw.trim();
+        const mapped =
+          CLEANING_PROCESS_MAPPING[
+            trimmed as keyof typeof CLEANING_PROCESS_MAPPING
+          ];
+        if (mapped !== undefined) val = mapped;
+        else {
+          const n = Number(trimmed);
+          if (Number.isFinite(n)) val = n;
+        }
+      }
+      matrix[i][j] =
+        typeof val === "number" && Number.isFinite(val) ? val : 8000;
     }
   }
   return matrix;

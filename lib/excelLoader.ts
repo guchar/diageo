@@ -13,7 +13,7 @@ export interface DrinksTable {
 }
 
 // Mapping from cleaning process labels to numeric costs (gallons)
-const CLEANING_PROCESS_MAPPING: Record<string, number> = {
+export const CLEANING_PROCESS_MAPPING: Record<string, number> = {
   A: 0,
   "A/VR": 1002.32,
   VR: 1002.32,
@@ -67,8 +67,12 @@ export function getDrinksForLine(line: number): DrinksTable {
       const k = trimString(key);
       // Apply mapping for process labels when cell value is one of the labels
       let v: unknown = val;
-      if (typeof v === "string" && CLEANING_PROCESS_MAPPING[v.trim()]) {
-        v = CLEANING_PROCESS_MAPPING[v.trim()];
+      if (typeof v === "string") {
+        const maybe =
+          CLEANING_PROCESS_MAPPING[
+            v.trim() as keyof typeof CLEANING_PROCESS_MAPPING
+          ];
+        if (maybe !== undefined) v = maybe;
       }
       entry[k] = v;
     }
