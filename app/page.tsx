@@ -159,10 +159,25 @@ function SchedulerApp() {
     setDrinksParam(Array.from(next).join(","));
   }
 
+  const [filter, setFilter] = useState("");
+  const filteredDrinks = useMemo(() => {
+    const list = drinksData?.drinks ?? [];
+    const q = filter.trim().toLowerCase();
+    if (!q) return list;
+    return list.filter((d) => d.toLowerCase().includes(q));
+  }, [drinksData?.drinks, filter]);
+
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="flex items-center justify-between px-6 py-4">
-        <h1 className="text-xl font-semibold">Drink Production Scheduler</h1>
+      <header className="mx-auto flex max-w-7xl items-center justify-between px-6 py-6">
+        <div>
+          <h1 className="text-xl font-semibold tracking-tight">
+            Drink Production Scheduler
+          </h1>
+          <p className="mt-1 text-sm text-gray-500">
+            Plan, optimize, and export production runs with a calm, focused UI.
+          </p>
+        </div>
         <div className="flex gap-2">
           <button
             onClick={() => {
@@ -176,7 +191,7 @@ function SchedulerApp() {
                 fileInputRef.current.value = "";
               }
             }}
-            className="rounded border px-3 py-2 text-sm bg-white"
+            className="rounded border px-3 py-2 text-sm bg-white hover:bg-gray-50"
           >
             Reset
           </button>
@@ -185,7 +200,7 @@ function SchedulerApp() {
               href={`/api/export?line=${selectedLine}&drinks=${selectedDrinks.join(
                 ","
               )}`}
-              className="rounded border px-3 py-2 text-sm bg-white"
+              className="rounded border px-3 py-2 text-sm bg-white hover:bg-gray-50"
             >
               Export
             </Link>
@@ -193,46 +208,62 @@ function SchedulerApp() {
         </div>
       </header>
 
-      <main className="grid gap-6 px-6 pb-12 md:grid-cols-3">
-        <section className="md:col-span-1 space-y-4">
-          <div className="rounded border bg-white p-4">
+      <main className="mx-auto grid max-w-7xl gap-6 px-6 pb-12 lg:grid-cols-12">
+        <section className="lg:col-span-4 space-y-4">
+          <div className="panel p-4">
             <h2 className="text-sm font-medium">Select Production Line</h2>
             <p className="text-xs text-gray-500 mb-2">
               Choose the production line for scheduling optimization
             </p>
-            <select
-              className="mt-1 w-full rounded border px-3 py-2"
-              value={selectedLine != null ? String(selectedLine) : ""}
-              onChange={(e) => {
-                const value = e.target.value;
-                updateParams((next) => {
-                  if (!value) next.delete("line");
-                  else next.set("line", value);
-                  next.delete("drinks");
-                });
-                setResult(null);
-                // Clear any uploaded file indicator when switching lines
-                setUploadedFileName(null);
-                if (fileInputRef.current) {
-                  fileInputRef.current.value = "";
-                }
-              }}
-            >
-              <option value="">Select line</option>
-              {lines?.lines.map((line) => (
-                <option key={line} value={String(line)}>
-                  Line {line}
-                </option>
-              ))}
-            </select>
+            <div className="relative">
+              <select
+                className="soft-input mt-1 w-full pr-9"
+                value={selectedLine != null ? String(selectedLine) : ""}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  updateParams((next) => {
+                    if (!value) next.delete("line");
+                    else next.set("line", value);
+                    next.delete("drinks");
+                  });
+                  setResult(null);
+                  // Clear any uploaded file indicator when switching lines
+                  setUploadedFileName(null);
+                  if (fileInputRef.current) {
+                    fileInputRef.current.value = "";
+                  }
+                }}
+              >
+                <option value="">Select line</option>
+                {lines?.lines.map((line) => (
+                  <option key={line} value={String(line)}>
+                    Line {line}
+                  </option>
+                ))}
+              </select>
+              <svg
+                aria-hidden
+                className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.06l3.71-3.83a.75.75 0 0 1 1.08 1.04l-4.25 4.38a.75.75 0 0 1-1.08 0L5.21 8.27a.75.75 0 0 1 .02-1.06Z" />
+              </svg>
+            </div>
           </div>
 
-          <div className="rounded border bg-white p-4">
+          <div className="panel p-4">
             <h2 className="text-sm font-medium">Select Drinks</h2>
             <p className="text-xs text-gray-500 mb-2">
-              Tap to add/remove drinks or upload a list file
+              Tap to add/remove drinks. Upload a list file if you prefer.
             </p>
-            <div className="mt-1 max-h-60 overflow-auto rounded border">
+            <input
+              placeholder="Search drinks…"
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+              className="soft-input mb-2 w-full"
+            />
+            <div className="mt-1 max-h-60 overflow-auto rounded-xl border border-gray-200">
               {!selectedLine && (
                 <div className="p-3 text-sm text-gray-500">
                   Select production line first
@@ -241,21 +272,23 @@ function SchedulerApp() {
               {selectedLine && !drinksData && (
                 <div className="p-3 text-sm text-gray-500">Loading drinks…</div>
               )}
-              {drinksData?.drinks.map((d) => {
+              {filteredDrinks.map((d) => {
                 const isSelected = selectedDrinks.includes(d);
                 return (
                   <button
                     key={d}
                     type="button"
                     onClick={() => toggleDrink(d)}
-                    className={`flex w-full items-center justify-between px-3 py-2 text-left hover:bg-gray-50 ${
+                    className={`flex w-full items-center justify-between px-3 py-2 text-left transition-colors hover:bg-gray-50 ${
                       isSelected ? "bg-blue-50" : ""
                     }`}
                     aria-pressed={isSelected}
                   >
                     <span className="truncate pr-2">{d}</span>
                     {isSelected && (
-                      <span className="text-xs text-blue-600">Added</span>
+                      <span className="ml-2 inline-flex h-5 items-center rounded-sm bg-gray-100 px-1.5 text-[11px] text-gray-600">
+                        Added
+                      </span>
                     )}
                   </button>
                 );
@@ -272,7 +305,7 @@ function SchedulerApp() {
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="rounded border px-3 py-2 text-sm bg-white"
+                className="soft-input px-3 py-2 text-sm hover:bg-gray-50"
               >
                 Upload list
               </button>
@@ -311,7 +344,7 @@ function SchedulerApp() {
             </div>
           </div>
 
-          <div className="rounded border bg-white p-4">
+          <div className="panel p-4">
             <h2 className="text-sm font-medium">Status</h2>
             <div className="text-sm mt-2 space-y-1">
               <div>
@@ -335,45 +368,68 @@ function SchedulerApp() {
             </div>
           </div>
 
-          <div className="rounded border bg-white p-4">
+          <div className="panel p-4">
             <h2 className="text-sm font-medium">Run Optimization</h2>
             <button
               disabled={
                 !selectedLine || selectedDrinks.length < 2 || optimizing
               }
               onClick={runOptimization}
-              className="mt-3 w-full rounded bg-blue-600 px-4 py-2 text-white disabled:opacity-50"
+              className="mt-3 w-full rounded-lg bg-neutral-900 px-4 py-2 text-white hover:bg-neutral-800 disabled:opacity-50"
             >
               {optimizing ? "Running..." : "Optimize Production Schedule"}
             </button>
           </div>
         </section>
 
-        <section className="md:col-span-2 rounded border bg-white p-4">
-          <h2 className="text-sm font-medium">Production Schedule</h2>
+        <section className="lg:col-span-8 panel p-4">
+          <div className="flex items-start justify-between">
+            <div>
+              <h2 className="text-sm font-medium">Production Schedule</h2>
+              <p className="text-xs text-gray-500 mt-1">
+                Ordered list of runs based on your current selections.
+              </p>
+            </div>
+          </div>
           {!result ? (
-            <div className="flex h-64 items-center justify-center text-gray-400 text-sm">
-              No drinks selected
+            <div className="mt-4 flex h-64 items-center justify-center rounded-xl border border-gray-200 text-gray-500 text-sm">
+              Select drinks on the left to generate a schedule.
             </div>
           ) : (
-            <div className="mt-4 space-y-3">
-              <ol className="list-decimal pl-5">
-                {result.optimalSchedule.map((d) => (
-                  <li key={d}>{d}</li>
-                ))}
-              </ol>
-              <div className="text-sm">
-                <div>
-                  Total Water: {result.totalWaterGallons.toFixed(2)} gallons
-                </div>
-                <div>
-                  Saved Water: {result.savedWaterGallons.toFixed(2)} gallons
-                </div>
+            <div className="mt-4 space-y-4">
+              <div className="max-h-[520px] overflow-auto rounded-xl">
+                <ol className="list-decimal pl-5 pr-2 space-y-1.5 text-sm">
+                  {result.optimalSchedule.map((d) => (
+                    <li key={d} className="leading-6">
+                      <span className="font-medium">{d}</span>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+              <div className="h-px bg-gray-100" />
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <Stat
+                  label="Total Water"
+                  value={`${result.totalWaterGallons.toFixed(2)} gallons`}
+                />
+                <Stat
+                  label="Saved Water"
+                  value={`${result.savedWaterGallons.toFixed(2)} gallons`}
+                />
               </div>
             </div>
           )}
         </section>
       </main>
+    </div>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-xl border p-3 shadow-sm">
+      <div className="text-xs text-gray-500">{label}</div>
+      <div className="mt-1 text-sm font-medium">{value}</div>
     </div>
   );
 }
