@@ -1,5 +1,13 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+import sys
+import os
+
+# Add the backend directory to Python path for imports
+backend_dir = os.path.dirname(__file__)
+if backend_dir not in sys.path:
+    sys.path.append(backend_dir)
+
 from services.data_processor import DataProcessor
 from services.optimizer import OptimizationService
 from models.schemas import OptimizationRequest, OptimizationResponse, ProductionLinesResponse, DrinksResponse
@@ -13,14 +21,16 @@ app = FastAPI(
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Configure appropriately for production
+    allow_origins=["*"],  # Allow all origins for now, configure appropriately for production
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # Initialize services
-data_processor = DataProcessor("../data/CIP Combined.xlsx")
+import os
+data_file_path = os.path.join(os.path.dirname(__file__), "..", "data", "CIP Combined.xlsx")
+data_processor = DataProcessor(data_file_path)
 optimizer = OptimizationService(data_processor)
 
 @app.get("/", tags=["health"])
@@ -48,4 +58,7 @@ async def optimize_schedule(request: OptimizationRequest):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000) 
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+
+# For Vercel
+handler = app 
