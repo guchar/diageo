@@ -14,13 +14,13 @@ export interface DrinksTable {
 
 // Mapping from cleaning process labels to numeric costs (gallons)
 const CLEANING_PROCESS_MAPPING: Record<string, number> = {
-  "A": 0,
+  A: 0,
   "A/VR": 1002.32,
-  "VR": 1002.32,
+  VR: 1002.32,
   "CIP 3": 2860.15,
   "CIP 5": 7500,
-  "H": 5,
-  "K": 6,
+  H: 5,
+  K: 6,
 };
 
 let cachedWorkbook: XLSX.WorkBook | null = null;
@@ -86,4 +86,3 @@ export function getDrinksForLine(line: number): DrinksTable {
 
   return { line, drinks };
 }
-
