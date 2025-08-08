@@ -55,7 +55,11 @@ export function buildAdjacencyMatrix(line: number, drinks: string[]): Matrix {
   return matrix;
 }
 
-export function computeWaterUsed(order: string[], drinks: string[], matrix: Matrix): number {
+export function computeWaterUsed(
+  order: string[],
+  drinks: string[],
+  matrix: Matrix
+): number {
   const index: Record<string, number> = Object.fromEntries(
     drinks.map((d, idx) => [d, idx])
   );
@@ -69,7 +73,10 @@ export function computeWaterUsed(order: string[], drinks: string[], matrix: Matr
 }
 
 // Held–Karp variant for Hamiltonian path (no return edge), start at node 0
-export function heldKarpPath(matrix: Matrix, names: string[]): OptimizationResult {
+export function heldKarpPath(
+  matrix: Matrix,
+  names: string[]
+): OptimizationResult {
   const n = matrix.length;
   const C: Record<string, [number, number]> = {};
   function key(bits: number, k: number): string {
@@ -133,7 +140,10 @@ export function heldKarpPath(matrix: Matrix, names: string[]): OptimizationResul
   return { cost: computeWaterUsed(order, names, matrix), order };
 }
 
-export function optimizeAcrossStartingNodes(line: number, selected: string[]): OptimizationResult {
+export function optimizeAcrossStartingNodes(
+  line: number,
+  selected: string[]
+): OptimizationResult {
   const names = selected;
   let best: OptimizationResult | null = null;
   for (let s = 0; s < names.length; s += 1) {
@@ -164,4 +174,3 @@ function combinations<T>(array: T[], k: number): T[][] {
 }
 
 export type { OptimizationResult };
-

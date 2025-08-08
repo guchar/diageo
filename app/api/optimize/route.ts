@@ -28,7 +28,8 @@ export async function POST(req: NextRequest) {
 
   const optimal = optimizeAcrossStartingNodes(line, drinks);
   const matrix = buildAdjacencyMatrix(line, drinks);
-  const baselineOrder = initialSchedule && initialSchedule.length > 1 ? initialSchedule : drinks;
+  const baselineOrder =
+    initialSchedule && initialSchedule.length > 1 ? initialSchedule : drinks;
   const baseline = computeWaterUsed(baselineOrder, drinks, matrix);
   const saved = baseline - optimal.cost;
   return NextResponse.json({
@@ -42,4 +43,3 @@ export async function POST(req: NextRequest) {
 function round2(n: number): number {
   return Math.round(n * 100) / 100;
 }
-
