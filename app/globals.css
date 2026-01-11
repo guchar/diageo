@@ -1,8 +1,13 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #fafafa;
+  --foreground: #18181b;
+  --accent: #2563eb;
+  --accent-light: #eff6ff;
+  --border: #e4e4e7;
+  --border-light: #f4f4f5;
+  --muted: #71717a;
 }
 
 @theme inline {
@@ -12,44 +17,56 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), ui-sans-serif, system-ui, -apple-system,
     Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* App-specific primitive styles to match the rounded, soft design */
+/* Premium panel styling */
 .panel {
-  background: #fff;
-  border: 1px solid #e5e7eb; /* gray-200 */
-  border-radius: 16px;
-  box-shadow: 0 1px 0 rgba(16, 24, 40, 0.04), 0 2px 4px rgba(16, 24, 40, 0.06);
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: 
+    0 1px 2px rgba(0, 0, 0, 0.03),
+    0 4px 8px rgba(0, 0, 0, 0.02);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
+.panel:hover {
+  box-shadow: 
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 8px 16px rgba(0, 0, 0, 0.04);
+}
+
+/* Refined input styling */
 .soft-input {
-  background: #fff;
-  border: 1px solid #d1d5db; /* gray-300 */
+  background: #ffffff;
+  border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 10px 12px; /* ~40px height */
+  padding: 11px 14px;
   font-size: 0.875rem;
   line-height: 1.25rem;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9),
-    inset 0 -1px 0 rgba(16, 24, 40, 0.03), 0 1px 2px rgba(16, 24, 40, 0.04);
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
 }
+
+.soft-input::placeholder {
+  color: #a1a1aa;
+}
+
+.soft-input:hover {
+  border-color: #d4d4d8;
+}
+
 .soft-input:focus {
   outline: none;
-  border-color: #9ca3af; /* gray-400 */
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9),
-    inset 0 -1px 0 rgba(16, 24, 40, 0.03), 0 1px 2px rgba(16, 24, 40, 0.04);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-light);
 }
 
 /* Hide native dropdown arrow when using custom chevron */
@@ -57,4 +74,182 @@ select.soft-input {
   appearance: none;
   -webkit-appearance: none;
   background-image: none;
+  cursor: pointer;
+}
+
+/* Primary button */
+.btn-primary {
+  background: linear-gradient(180deg, #18181b 0%, #09090b 100%);
+  border: none;
+  border-radius: 12px;
+  color: #ffffff;
+  font-weight: 500;
+  padding: 12px 20px;
+  font-size: 0.875rem;
+  transition: all 0.15s ease;
+  box-shadow: 
+    0 1px 2px rgba(0, 0, 0, 0.1),
+    0 2px 4px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.12),
+    0 4px 8px rgba(0, 0, 0, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-primary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Secondary button */
+.btn-secondary {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--foreground);
+  font-weight: 500;
+  padding: 9px 16px;
+  font-size: 0.875rem;
+  transition: all 0.15s ease;
+}
+
+.btn-secondary:hover {
+  background: #f4f4f5;
+  border-color: #d4d4d8;
+}
+
+/* Drink list item */
+.drink-item {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  text-align: left;
+  transition: all 0.12s ease;
+  border-bottom: 1px solid var(--border-light);
+  background: transparent;
+}
+
+.drink-item:last-child {
+  border-bottom: none;
+}
+
+.drink-item:hover {
+  background: #f9fafb;
+}
+
+.drink-item.selected {
+  background: var(--accent-light);
+}
+
+/* Badge */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+.badge-selected {
+  background: var(--accent);
+  color: #ffffff;
+}
+
+/* Stat card */
+.stat-card {
+  background: linear-gradient(180deg, #ffffff 0%, #fafafa 100%);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px 18px;
+  transition: all 0.15s ease;
+}
+
+.stat-card:hover {
+  border-color: #d4d4d8;
+}
+
+/* Schedule list */
+.schedule-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  margin-bottom: 8px;
+  transition: all 0.12s ease;
+}
+
+.schedule-item:hover {
+  border-color: var(--border);
+  background: #fafafa;
+}
+
+/* Empty state */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  text-align: center;
+  color: var(--muted);
+}
+
+/* Divider */
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+  margin: 16px 0;
+}
+
+/* Section header */
+.section-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+/* Subtle animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease forwards;
+}
+
+/* Scrollbar styling */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #d4d4d8;
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #a1a1aa;
 }

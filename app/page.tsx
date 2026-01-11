@@ -168,17 +168,17 @@ function SchedulerApp() {
   }, [drinksData?.drinks, filter]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="mx-auto flex max-w-7xl items-center justify-between px-6 py-6">
+    <div className="min-h-screen">
+      <header className="mx-auto flex max-w-6xl items-center justify-between px-8 py-8">
         <div>
-          <h1 className="text-xl font-semibold tracking-tight">
-            Drink Production Scheduler
+          <h1 className="text-2xl font-semibold tracking-tight text-zinc-900">
+            Production Scheduler
           </h1>
-          <p className="mt-1 text-sm text-gray-500">
-            Plan, optimize, and export production runs with a calm, focused UI.
+          <p className="mt-1.5 text-sm text-zinc-500">
+            Optimize your drink production sequence
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-3">
           <button
             onClick={() => {
               updateParams((next) => {
@@ -191,7 +191,7 @@ function SchedulerApp() {
                 fileInputRef.current.value = "";
               }
             }}
-            className="rounded border px-3 py-2 text-sm bg-white hover:bg-gray-50"
+            className="btn-secondary"
           >
             Reset
           </button>
@@ -200,24 +200,22 @@ function SchedulerApp() {
               href={`/api/export?line=${selectedLine}&drinks=${selectedDrinks.join(
                 ","
               )}`}
-              className="rounded border px-3 py-2 text-sm bg-white hover:bg-gray-50"
+              className="btn-secondary"
             >
-              Export
+              Export CSV
             </Link>
           )}
         </div>
       </header>
 
-      <main className="mx-auto grid max-w-7xl gap-6 px-6 pb-12 lg:grid-cols-12">
-        <section className="lg:col-span-4 space-y-4">
-          <div className="panel p-4">
-            <h2 className="text-sm font-medium">Select Production Line</h2>
-            <p className="text-xs text-gray-500 mb-2">
-              Choose the production line for scheduling optimization
-            </p>
+      <main className="mx-auto grid max-w-6xl gap-8 px-8 pb-16 lg:grid-cols-12">
+        <section className="lg:col-span-4 space-y-6">
+          {/* Production Line Selection */}
+          <div className="panel p-6">
+            <div className="section-label">Production Line</div>
             <div className="relative">
               <select
-                className="soft-input mt-1 w-full pr-9"
+                className="soft-input w-full pr-10"
                 value={selectedLine != null ? String(selectedLine) : ""}
                 onChange={(e) => {
                   const value = e.target.value;
@@ -227,14 +225,13 @@ function SchedulerApp() {
                     next.delete("drinks");
                   });
                   setResult(null);
-                  // Clear any uploaded file indicator when switching lines
                   setUploadedFileName(null);
                   if (fileInputRef.current) {
                     fileInputRef.current.value = "";
                   }
                 }}
               >
-                <option value="">Select line</option>
+                <option value="">Choose a line...</option>
                 {lines?.lines.map((line) => (
                   <option key={line} value={String(line)}>
                     Line {line}
@@ -243,7 +240,7 @@ function SchedulerApp() {
               </select>
               <svg
                 aria-hidden
-                className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
+                className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400"
                 viewBox="0 0 20 20"
                 fill="currentColor"
               >
@@ -252,49 +249,50 @@ function SchedulerApp() {
             </div>
           </div>
 
-          <div className="panel p-4">
-            <h2 className="text-sm font-medium">Select Drinks</h2>
-            <p className="text-xs text-gray-500 mb-2">
-              Tap to add/remove drinks. Upload a list file if you prefer.
-            </p>
+          {/* Drinks Selection */}
+          <div className="panel p-6">
+            <div className="section-label">Select Drinks</div>
             <input
-              placeholder="Search drinks…"
+              placeholder="Search drinks..."
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
-              className="soft-input mb-2 w-full"
+              className="soft-input w-full mb-4"
             />
-            <div className="mt-1 max-h-60 overflow-auto rounded-xl border border-gray-200">
-              {!selectedLine && (
-                <div className="p-3 text-sm text-gray-500">
-                  Select production line first
-                </div>
-              )}
-              {selectedLine && !drinksData && (
-                <div className="p-3 text-sm text-gray-500">Loading drinks…</div>
-              )}
-              {filteredDrinks.map((d) => {
-                const isSelected = selectedDrinks.includes(d);
-                return (
-                  <button
-                    key={d}
-                    type="button"
-                    onClick={() => toggleDrink(d)}
-                    className={`flex w-full items-center justify-between px-3 py-2 text-left transition-colors hover:bg-gray-50 ${
-                      isSelected ? "bg-blue-50" : ""
-                    }`}
-                    aria-pressed={isSelected}
-                  >
-                    <span className="truncate pr-2">{d}</span>
-                    {isSelected && (
-                      <span className="ml-2 inline-flex h-5 items-center rounded-sm bg-gray-100 px-1.5 text-[11px] text-gray-600">
-                        Added
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
+            <div className="rounded-xl border border-zinc-200 overflow-hidden">
+              <div className="max-h-64 overflow-auto custom-scrollbar">
+                {!selectedLine && (
+                  <div className="p-4 text-sm text-zinc-400 text-center">
+                    Select a production line first
+                  </div>
+                )}
+                {selectedLine && !drinksData && (
+                  <div className="p-4 text-sm text-zinc-400 text-center">
+                    Loading drinks...
+                  </div>
+                )}
+                {filteredDrinks.map((d) => {
+                  const isSelected = selectedDrinks.includes(d);
+                  return (
+                    <button
+                      key={d}
+                      type="button"
+                      onClick={() => toggleDrink(d)}
+                      className={`drink-item ${isSelected ? "selected" : ""}`}
+                      aria-pressed={isSelected}
+                    >
+                      <span className="truncate pr-3 text-sm">{d}</span>
+                      {isSelected && (
+                        <span className="badge badge-selected flex-shrink-0">
+                          Added
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-            <div className="mt-3 flex items-center gap-2">
+            
+            <div className="mt-4 flex items-center gap-3">
               <input
                 ref={fileInputRef}
                 type="file"
@@ -305,123 +303,149 @@ function SchedulerApp() {
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="soft-input px-3 py-2 text-sm hover:bg-gray-50"
+                className="btn-secondary text-sm"
               >
-                Upload list
+                <span className="flex items-center gap-2">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                  </svg>
+                  Upload List
+                </span>
               </button>
               {uploadedFileName && (
-                <span className="text-xs text-gray-500 truncate">
+                <span className="text-xs text-zinc-500 truncate max-w-32">
                   {uploadedFileName}
                 </span>
               )}
             </div>
 
-            <div className="mt-4">
-              <h3 className="text-xs font-medium text-gray-700 mb-1">
-                Order selected:
-              </h3>
-              <div className="text-xs text-gray-700">
-                {selectedDrinks.length === 0 ? (
-                  <span className="text-gray-400">None</span>
-                ) : (
-                  <span>
-                    {selectedDrinks.map((d, i) => `${i + 1}. ${d}`).join(" ")}
-                  </span>
-                )}
-              </div>
-            </div>
+            {selectedDrinks.length > 0 && (
+              <>
+                <div className="divider" />
+                <div>
+                  <div className="text-xs font-medium text-zinc-500 mb-2">
+                    Selected ({selectedDrinks.length})
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {selectedDrinks.map((d, i) => (
+                      <span
+                        key={d}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 bg-zinc-100 rounded-lg text-xs text-zinc-700"
+                      >
+                        <span className="text-zinc-400">{i + 1}.</span> {d.length > 20 ? d.slice(0, 20) + "..." : d}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
           </div>
 
-          <div className="panel p-4">
-            <h2 className="text-sm font-medium">Status</h2>
-            <div className="text-sm mt-2 space-y-1">
-              <div>
-                <span className="text-gray-500">Production Line:</span>{" "}
-                <span>{selectedLine ?? "None selected"}</span>
-              </div>
-              <div>
-                <span className="text-gray-500">Drinks:</span>{" "}
-                <span>{selectedDrinks.length}</span>
-              </div>
-              <div>
-                <span className="text-gray-500">Status:</span>{" "}
-                <span>{optimizing ? "Optimizing" : "Waiting"}</span>
-              </div>
-              <div>
-                <span className="text-gray-500">Ready to Optimize:</span>{" "}
-                <span>
-                  {selectedLine && selectedDrinks.length >= 2 ? "Yes" : "No"}
-                </span>
+          {/* Status & Action */}
+          <div className="panel p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="section-label mb-0">Status</div>
+              <div className={`flex items-center gap-2 text-xs font-medium ${
+                selectedLine && selectedDrinks.length >= 2 ? "text-emerald-600" : "text-zinc-400"
+              }`}>
+                <span className={`w-2 h-2 rounded-full ${
+                  selectedLine && selectedDrinks.length >= 2 ? "bg-emerald-500" : "bg-zinc-300"
+                }`} />
+                {selectedLine && selectedDrinks.length >= 2 ? "Ready" : "Not ready"}
               </div>
             </div>
-          </div>
+            
+            <div className="space-y-2.5 text-sm mb-5">
+              <div className="flex justify-between">
+                <span className="text-zinc-500">Line</span>
+                <span className="font-medium">{selectedLine ? `Line ${selectedLine}` : "—"}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-zinc-500">Drinks</span>
+                <span className="font-medium">{selectedDrinks.length}</span>
+              </div>
+            </div>
 
-          <div className="panel p-4">
-            <h2 className="text-sm font-medium">Run Optimization</h2>
             <button
               disabled={
                 !selectedLine || selectedDrinks.length < 2 || optimizing
               }
               onClick={runOptimization}
-              className="mt-3 w-full rounded-lg bg-neutral-900 px-4 py-2 text-white hover:bg-neutral-800 disabled:opacity-50"
+              className="btn-primary w-full"
             >
-              {optimizing ? "Running..." : "Optimize Production Schedule"}
+              {optimizing ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  Optimizing...
+                </span>
+              ) : (
+                "Optimize Schedule"
+              )}
             </button>
           </div>
         </section>
 
-        <section className="lg:col-span-8 panel p-4">
-          <div className="flex items-start justify-between">
-            <div>
-              <h2 className="text-sm font-medium">Production Schedule</h2>
-              <p className="text-xs text-gray-500 mt-1">
-                Ordered list of runs based on your current selections.
-              </p>
-            </div>
-          </div>
+        {/* Results Panel */}
+        <section className="lg:col-span-8 panel p-6">
+          <div className="section-label">Optimized Schedule</div>
+          
           {!result ? (
-            <div className="mt-4 flex h-64 items-center justify-center rounded-xl border border-gray-200 text-gray-500 text-sm">
-              Select drinks on the left to generate a schedule.
+            <div className="empty-state rounded-xl border border-dashed border-zinc-200 mt-2" style={{ minHeight: 320 }}>
+              <svg className="w-12 h-12 text-zinc-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+              </svg>
+              <p className="text-sm font-medium text-zinc-500">No schedule generated yet</p>
+              <p className="text-xs text-zinc-400 mt-1">Select drinks and optimize to see results</p>
             </div>
           ) : (
-            <div className="mt-4 space-y-4">
-              <div className="max-h-[520px] overflow-auto rounded-xl">
-                <ol className="list-decimal pl-5 pr-2 space-y-1.5 text-sm">
-                  {result.optimalSchedule.map((d) => (
-                    <li key={d} className="leading-6">
-                      <span className="font-medium">{d}</span>
-                    </li>
-                  ))}
-                </ol>
+            <div className="animate-fade-in mt-2">
+              {/* Stats Row */}
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                <div className="stat-card">
+                  <div className="flex items-center gap-2 text-xs text-zinc-500 mb-1">
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Total Water Usage
+                  </div>
+                  <div className="text-xl font-semibold text-zinc-900">
+                    {result.totalWaterGallons.toFixed(1)} <span className="text-sm font-normal text-zinc-500">gal</span>
+                  </div>
+                </div>
+                <div className="stat-card">
+                  <div className="flex items-center gap-2 text-xs text-zinc-500 mb-1">
+                    <svg className="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Water Saved
+                  </div>
+                  <div className="text-xl font-semibold text-emerald-600">
+                    {result.savedWaterGallons.toFixed(1)} <span className="text-sm font-normal text-emerald-500">gal</span>
+                  </div>
+                  {result.savedWaterGallons === 0 && (
+                    <div className="text-xs text-zinc-400 mt-0.5">Already optimal</div>
+                  )}
+                </div>
               </div>
-              <div className="h-px bg-gray-100" />
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                <Stat
-                  label="Total Water"
-                  value={`${result.totalWaterGallons.toFixed(2)} gallons`}
-                />
-                <Stat
-                  label="Saved Water"
-                  value={`${result.savedWaterGallons.toFixed(2)} gallons${
-                    result.savedWaterGallons === 0
-                      ? " (optimized route already selected)"
-                      : ""
-                  }`}
-                />
+
+              {/* Schedule List */}
+              <div className="max-h-[400px] overflow-auto custom-scrollbar pr-2">
+                {result.optimalSchedule.map((d, index) => (
+                  <div key={d} className="schedule-item">
+                    <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-zinc-100 text-xs font-semibold text-zinc-500 mr-3 flex-shrink-0">
+                      {index + 1}
+                    </span>
+                    <span className="text-sm font-medium text-zinc-800">{d}</span>
+                  </div>
+                ))}
               </div>
             </div>
           )}
         </section>
       </main>
-    </div>
-  );
-}
-
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-xl border p-3 shadow-sm">
-      <div className="text-xs text-gray-500">{label}</div>
-      <div className="mt-1 text-sm font-medium">{value}</div>
     </div>
   );
 }
