@@ -41,7 +41,7 @@ function useQueryParamsUpdater(): (
 }
 
 function SchedulerApp() {
-  const [lineParam, setLineParam] = useQueryParam("line");
+  const [lineParam] = useQueryParam("line");
   const [drinksParam, setDrinksParam] = useQueryParam("drinks");
   const updateParams = useQueryParamsUpdater();
   const selectedLine = lineParam ? Number(lineParam) : undefined;
