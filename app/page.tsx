@@ -318,27 +318,15 @@ function SchedulerApp() {
 
             <div className="mt-4">
               <h3 className="text-xs font-medium text-gray-700 mb-1">
-                Drinks chosen
+                Order selected:
               </h3>
-              <div className="flex flex-wrap gap-2">
-                {selectedDrinks.map((d) => (
-                  <span
-                    key={d}
-                    className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-1 text-xs"
-                  >
-                    <span className="truncate max-w-48">{d}</span>
-                    <button
-                      type="button"
-                      aria-label={`Remove ${d}`}
-                      className="text-gray-500 hover:text-gray-700"
-                      onClick={() => toggleDrink(d)}
-                    >
-                      ×
-                    </button>
+              <div className="text-xs text-gray-700">
+                {selectedDrinks.length === 0 ? (
+                  <span className="text-gray-400">None</span>
+                ) : (
+                  <span>
+                    {selectedDrinks.map((d, i) => `${i + 1}. ${d}`).join(" ")}
                   </span>
-                ))}
-                {selectedDrinks.length === 0 && (
-                  <span className="text-xs text-gray-400">None</span>
                 )}
               </div>
             </div>
@@ -414,7 +402,11 @@ function SchedulerApp() {
                 />
                 <Stat
                   label="Saved Water"
-                  value={`${result.savedWaterGallons.toFixed(2)} gallons`}
+                  value={`${result.savedWaterGallons.toFixed(2)} gallons${
+                    result.savedWaterGallons === 0
+                      ? " (optimized route already selected)"
+                      : ""
+                  }`}
                 />
               </div>
             </div>
